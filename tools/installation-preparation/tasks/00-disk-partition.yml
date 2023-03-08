@@ -1,0 +1,28 @@
+- name: Create boot partition
+  community.general.parted:
+    device: /dev/sda
+    label: gpt
+    number: 1
+    part_start: 1MiB
+    part_end: 512MiB
+    fs_type: fat32
+    flags: [ esp ]
+    state: present
+- name: Format boot partition
+  community.general.filesystem:
+    fstype: vfat
+    dev: /dev/sda1
+    opts: -F 32
+- name: Create root partition
+  community.general.parted:
+    device: /dev/sda
+    label: gpt
+    number: 2
+    part_start: 512MiB
+    part_end: 100%
+    fs_type: btrfs
+    state: present
+- name: Format root partition
+  community.general.filesystem:
+    fstype: btrfs
+    dev: /dev/sda2
