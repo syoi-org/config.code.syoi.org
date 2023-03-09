@@ -114,7 +114,7 @@ in
           })
           instancesCfg;
       users.users = lib.mapAttrs'
-        (name: instanceCfg: lib.nameValuePair instanceCfg.user (lib.enableIf instanceCfg.createUser {
+        (name: instanceCfg: lib.nameValuePair instanceCfg.user (lib.mkIf instanceCfg.createUser {
           isNormalUser = true;
           shell = pkgs.zsh;
         }))

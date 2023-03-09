@@ -14,6 +14,10 @@
     "/nix".options = [ "compress=zstd" "noatime" ];
   };
 
+  # Use the systemd-boot EFI boot loader.
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
   # Set your time zone.
   time.timeZone = "Asia/Hong_Kong";
 
@@ -107,7 +111,7 @@
   };
   services.openssh = {
     enable = true;
-    PasswordAuthentication = false;
+    settings.PasswordAuthentication = false;
   };
   services.qemuGuest.enable = true;
   services.tailscale.enable = true;

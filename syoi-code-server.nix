@@ -10,12 +10,12 @@
     instances = {
       stommydx = { createUser = false; };
     };
-    domain = "code-v2.syoi.org"
+    domain = "code-v2.syoi.org";
   };
 
   services.cloudflared = {
     enable = true;
-    tunnel = {
+    tunnels = {
       code-server = {
         ingress = {
           "code-v2.syoi.org" = "http://localhost:80";
