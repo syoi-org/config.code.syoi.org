@@ -71,7 +71,9 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  networking.domain = "syoi.org";
   networking.firewall.enable = false;
+  networking.hostName = "code";
   networking.networkmanager = {
     enable = true;
     connectionConfig = {
