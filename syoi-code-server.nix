@@ -19,7 +19,10 @@
       code-server = {
         ingress = {
           "code-v2.syoi.org" = "http://localhost:80";
+          "ssh-v2.syoi.org" = "ssh://localhost:22";
         };
+        default = "http_status:404";
+        credentialsFile = config.sops.secrets.tunnel-credentials.path;
       };
     };
   };

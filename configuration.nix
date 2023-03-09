@@ -105,7 +105,10 @@
     enable = true;
     extraConfig = "MulticastDNS=yes";
   };
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    PasswordAuthentication = false;
+  };
   services.qemuGuest.enable = true;
   services.tailscale.enable = true;
 
