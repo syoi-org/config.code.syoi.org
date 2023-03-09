@@ -38,6 +38,9 @@
       tunnel-credentials = {
         sopsFile = ./secrets/tunnel-credentials.json;
         format = "json";
+        owner = "cloudflared";
+        group = "cloudflared";
+        restartUnits = [ "cloudflared-tunnel-code-server.service" ];
       };
     };
   };
