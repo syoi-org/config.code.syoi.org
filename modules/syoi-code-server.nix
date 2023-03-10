@@ -46,7 +46,7 @@ in
     };
 
     domain = lib.mkOption {
-      default = "code.syoi.org";
+      #      default = "code.syoi.org";
       description = lib.mdDoc "The domain name pointing to code-server.";
       type = lib.types.str;
     };

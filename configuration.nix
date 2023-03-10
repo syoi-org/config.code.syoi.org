@@ -107,6 +107,11 @@
   # For running unpatched binaries such as VS Code remote SSH plugin server
   programs.nix-ld.enable = true;
 
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = true;
+  };
+
   services.resolved = {
     enable = true;
     extraConfig = "MulticastDNS=yes";
