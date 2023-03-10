@@ -9,6 +9,7 @@
     enable = true;
     instances = {
       stommydx = { createUser = false; };
+      jackylkk2003 = {};
     };
     domain = "code-v2.syoi.org";
   };
