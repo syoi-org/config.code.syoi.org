@@ -18,6 +18,17 @@
     domain = "code.syoi.org";
   };
 
+  services.caddy = {
+    enable = true;
+    virtualHosts = {
+      "code.syoi.org:80" = {
+        extraConfig = ''
+          redir https://github.com/syoi-org/code.syoi.org
+        '';
+      };
+    };
+  };
+
   services.cloudflared = {
     enable = true;
     tunnels = {
