@@ -61,8 +61,8 @@
     };
   };
 
-  # temporarily allow nodejs 16 for old code-server version
+  # temporarily allow nodejs 16 for code-server
   nixpkgs.config.permittedInsecurePackages = [
-    "nodejs-16.20.1"
+    "nodejs-16.20.2"
   ];
 }
