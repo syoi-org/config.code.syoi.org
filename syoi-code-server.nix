@@ -14,6 +14,7 @@
       azidoazideazide = { };
       happychau = { };
       htlam = { };
+      chemistrying = { };
     };
     domain = "code.syoi.org";
   };
