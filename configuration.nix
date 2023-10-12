@@ -44,7 +44,7 @@
     cmake
     delta
     dig
-    exa
+    eza
     file
     gcc
     gh
