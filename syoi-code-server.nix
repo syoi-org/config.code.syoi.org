@@ -27,6 +27,11 @@
           redir https://github.com/syoi-org/code.syoi.org
         '';
       };
+      "leaderboard.syoi.org:80" = {
+        extraConfig = ''
+          reverse_proxy http://chemistrying.ddns.net
+        '';
+      };
     };
   };
 
@@ -37,6 +42,7 @@
         ingress = {
           "code.syoi.org" = "http://localhost:80";
           "ssh.syoi.org" = "ssh://localhost:22";
+          "leaderboard.syoi.org" = "http://localhost:80";
         };
         default = "http_status:404";
         credentialsFile = config.sops.secrets.tunnel-credentials.path;
