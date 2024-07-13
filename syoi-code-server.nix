@@ -15,6 +15,7 @@
       happychau = { };
       htlam = { };
       chemistrying = { };
+      notming = { };
     };
     domain = "code.syoi.org";
   };
