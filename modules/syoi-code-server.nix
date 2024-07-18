@@ -89,6 +89,7 @@ in
           (name: instanceCfg: lib.nameValuePair "code-server@${name}" {
             description = "VSCode server";
             wantedBy = [ "multi-user.target" ];
+            wants = [ "network-online.target" ];
             after = [ "network-online.target" ];
             serviceConfig = {
               ExecStart = "${cfg.package}/bin/code-server --bind-addr ${cfg.host}:${toString instanceCfg.port} " + lib.escapeShellArgs cfg.extraArguments;
@@ -99,14 +100,14 @@ in
           instancesCfg;
       services.caddy.virtualHosts =
         lib.mapAttrs'
-          (name: instanceCfg: lib.nameValuePair "${cfg.domain}:80/${instanceCfg.user}" {
+          (name: instanceCfg: lib.nameValuePair "http://${cfg.domain}/${instanceCfg.user}" {
             extraConfig = ''
               redir http://${cfg.domain}/${instanceCfg.user}/
             '';
           })
           instancesCfg //
         lib.mapAttrs'
-          (name: instanceCfg: lib.nameValuePair "${cfg.domain}:80/${instanceCfg.user}/*" {
+          (name: instanceCfg: lib.nameValuePair "http://${cfg.domain}/${instanceCfg.user}/*" {
             extraConfig = ''
               uri strip_prefix /${instanceCfg.user}
               reverse_proxy ${cfg.host}:${toString instanceCfg.port}
