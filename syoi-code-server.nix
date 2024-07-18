@@ -25,10 +25,10 @@
 
   services.caddy = {
     enable = true;
-    user = "code";
+    user = "root";
     group = "code";
     globalConfig = ''
-      default_bind unix//srv/code/caddy.sock
+      default_bind unix//srv/code/caddy.sock|0220
     '';
     virtualHosts = {
       "http://leaderboard.syoi.org" = {
@@ -79,6 +79,7 @@
     description = "SYOI Code Server System User";
     group = "code";
     home = "/srv/code";
+    homeMode = "770";
     createHome = true;
   };
   users.groups.code = { };

@@ -51,21 +51,6 @@ in
       type = lib.types.str;
     };
 
-    host = lib.mkOption {
-      default = "127.0.0.1";
-      description = lib.mdDoc "The host-ip code-server to bind to.";
-      type = lib.types.str;
-    };
-
-    port = lib.mkOption {
-      default = 28000;
-      description = lib.mdDoc ''
-        The port where the first user's code-server runs.
-        The port range port..port+no_of_instances-1 will be reserved.
-      '';
-      type = lib.types.port;
-    };
-
     extraArguments = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ "--disable-telemetry" ];
@@ -89,7 +74,22 @@ in
 
   config = lib.mkIf cfg.enable
     {
-      services.caddy.enable = true;
+      services.caddy = {
+        enable = true;
+        user = "root";
+        group = "code";
+      };
+      systemd.tmpfiles.settings = {
+        "50-syoi-code-server" = {
+          "/run/code-server" = {
+            d = {
+              user = "code";
+              group = "code";
+              mode = "0777";
+            };
+          };
+        };
+      };
       systemd.services =
         lib.mapAttrs'
           (name: instanceCfg: lib.nameValuePair "code-server@${name}" {
@@ -98,7 +98,7 @@ in
             wants = [ "network-online.target" ];
             after = [ "network-online.target" ];
             serviceConfig = {
-              ExecStart = "${cfg.package}/bin/code-server --bind-addr ${cfg.host}:${toString instanceCfg.port} " + lib.escapeShellArgs cfg.extraArguments;
+              ExecStart = "${cfg.package}/bin/code-server --socket /run/code-server/${name}.sock --socket-mode 200 " + lib.escapeShellArgs cfg.extraArguments;
               Restart = "on-failure";
               User = instanceCfg.user;
             };
@@ -109,7 +109,7 @@ in
           extraConfig = (lib.concatStrings (lib.mapAttrsToList
             (name: instanceCfg: ''
               handle_path /${instanceCfg.user}/* {
-                reverse_proxy ${cfg.host}:${toString instanceCfg.port}
+                reverse_proxy unix//run/code-server/${name}.sock
               }
 
               handle /${instanceCfg.user} {
@@ -129,7 +129,6 @@ in
         (name: instanceCfg: lib.nameValuePair instanceCfg.user (lib.mkIf instanceCfg.createUser {
           isNormalUser = true;
           shell = pkgs.zsh;
-          extraGroups = [ "code" ];
         }))
         instancesCfg;
     };
