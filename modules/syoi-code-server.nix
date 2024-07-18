@@ -46,7 +46,7 @@ in
     };
 
     domain = lib.mkOption {
-      #      default = "code.syoi.org";
+      default = "localhost";
       description = lib.mdDoc "The domain name pointing to code-server.";
       type = lib.types.str;
     };
@@ -78,6 +78,12 @@ in
       type = with lib.types; attrsOf (submodule instancesOptions);
       description = lib.mdDoc "code-server instances to be created automatically by the system.";
     };
+
+    defaultHandler = lib.mkOption {
+      default = "";
+      description = lib.mdDoc "Default caddy handler if user is not specified or not found.";
+      type = lib.types.str;
+    };
   };
 
 
@@ -98,27 +104,34 @@ in
             };
           })
           instancesCfg;
-      services.caddy.virtualHosts =
-        lib.mapAttrs'
-          (name: instanceCfg: lib.nameValuePair "http://${cfg.domain}/${instanceCfg.user}" {
-            extraConfig = ''
-              redir http://${cfg.domain}/${instanceCfg.user}/
-            '';
-          })
-          instancesCfg //
-        lib.mapAttrs'
-          (name: instanceCfg: lib.nameValuePair "http://${cfg.domain}/${instanceCfg.user}/*" {
-            extraConfig = ''
-              uri strip_prefix /${instanceCfg.user}
-              reverse_proxy ${cfg.host}:${toString instanceCfg.port}
-            '';
-          })
-          instancesCfg;
+      services.caddy.virtualHosts = {
+        "http://${cfg.domain}" = {
+          extraConfig = (lib.concatStrings (lib.mapAttrsToList
+            (name: instanceCfg: ''
+              handle_path /${instanceCfg.user}/* {
+                reverse_proxy ${cfg.host}:${toString instanceCfg.port}
+              }
+
+              handle /${instanceCfg.user} {
+                redir http://${cfg.domain}/${instanceCfg.user}/
+              }
+
+
+            '')
+            instancesCfg)) + ''
+            handle {
+              ${cfg.defaultHandler}
+            }
+          '';
+        };
+      };
       users.users = lib.mapAttrs'
         (name: instanceCfg: lib.nameValuePair instanceCfg.user (lib.mkIf instanceCfg.createUser {
           isNormalUser = true;
           shell = pkgs.zsh;
+          extraGroups = [ "code" ];
         }))
         instancesCfg;
     };
 }
+

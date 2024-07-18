@@ -18,6 +18,9 @@
       notming = { };
     };
     domain = "code.syoi.org";
+    defaultHandler = ''
+      redir https://github.com/syoi-org/code.syoi.org
+    '';
   };
 
   services.caddy = {
@@ -28,11 +31,6 @@
       default_bind unix//srv/code/caddy.sock
     '';
     virtualHosts = {
-      "http://code.syoi.org" = {
-        extraConfig = ''
-          redir https://github.com/syoi-org/code.syoi.org
-        '';
-      };
       "http://leaderboard.syoi.org" = {
         extraConfig = ''
           reverse_proxy http://chemistrying.ddns.net
@@ -83,7 +81,7 @@
     home = "/srv/code";
     createHome = true;
   };
-  users.groups.code = {};
+  users.groups.code = { };
 
   # temporarily allow nodejs 16 for code-server
   nixpkgs.config.permittedInsecurePackages = [
