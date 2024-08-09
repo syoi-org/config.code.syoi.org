@@ -54,7 +54,7 @@
           "code.syoi.org" = "unix:/srv/code/caddy.sock";
           "ssh.syoi.org" = "ssh://localhost:22";
           "leaderboard.syoi.org" = "unix:/srv/code/caddy.sock";
-          "tft.syoi.org" = "unix:/srv/code/caddy.sock";
+          "tft24.syoi.org" = "unix:/srv/code/caddy.sock";
         };
         default = "http_status:404";
         credentialsFile = config.sops.secrets.tunnel-credentials.path;
