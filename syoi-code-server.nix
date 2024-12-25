@@ -90,6 +90,7 @@
         STORAGE_TYPE = "minio";
         MINIO_BUCKET = "forgejo-data";
         MINIO_USE_SSL = true;
+        MINIO_CHECKSUM_ALGORITHM = "md5"; # for compatibility with R2
       };
     };
   };
