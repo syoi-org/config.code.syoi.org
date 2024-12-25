@@ -36,6 +36,9 @@
           reverse_proxy http://chemistrying.ddns.net
         '';
       };
+      "http://git.syoi.org" = {
+        extraConfig = "reverse_proxy http://localhost:${builtins.toString config.services.forgejo.settings.server.HTTP_PORT}";
+      };
       #      "http://tft24.syoi.org" = {
       #        extraConfig = ''
       #          reverse_proxy http://localhost:28080
@@ -52,12 +55,29 @@
       code-server = {
         ingress = {
           "code.syoi.org" = "unix:/srv/code/caddy.sock";
+          "git.syoi.org" = "unix:/srv/code/caddy.sock";
           "ssh.syoi.org" = "ssh://localhost:22";
           "leaderboard.syoi.org" = "unix:/srv/code/caddy.sock";
           # "tft24.syoi.org" = "unix:/srv/code/caddy.sock";
         };
         default = "http_status:404";
         credentialsFile = config.sops.secrets.tunnel-credentials.path;
+      };
+    };
+  };
+
+  services.forgejo = {
+    enable = true;
+    database = {
+      type = "sqlite3";
+    };
+    settings = {
+      server = {
+        DOMAIN = "git.syoi.org";
+        ROOT_URL = "https://${config.services.forgejo.settings.server.DOMAIN}/"; 
+      };
+      service = {
+        DISABLE_REGISTRATION = true;
       };
     };
   };
