@@ -95,6 +95,31 @@
     };
   };
 
+  services.litestream = {
+    enable = true;
+    environmentFile = config.sops.templates.litestream.path;
+    settings = {
+      access-key-id = "$LITESTREAM_ACCESS_KEY_ID";
+      secret-access-key = "$LITESTREAM_SECRET_ACCESS_KEY";
+      dbs = [
+        {
+          path = config.services.forgejo.database.path;
+          replicas = [
+            {
+              type = "s3";
+              endpoint = "$LITESTREAM_S3_ENDPOINT";
+              bucket = "forgejo-litestream";
+              force-path-style = true;
+            }
+          ];
+        }
+      ];
+    };
+  };
+  # manually run: sudo chmod g+w /var/lib/forgejo/data/forgejo.db && sudo chmod g+w /var/lib/forgejo/data
+  # TODO: properly setup permission in nix config
+  users.users.litestream.extraGroups = [ config.services.forgejo.group ];
+
   sops = {
     age = {
       sshKeyPaths = [ ]; # prevent import error during first install
@@ -135,6 +160,18 @@
         restartUnits = [ "forgejo.service" ];
       };
     };
+    templates = {
+      litestream = {
+        content = ''
+        LITESTREAM_S3_ENDPOINT=${config.sops.placeholder.r2-endpoint}
+        LITESTREAM_ACCESS_KEY_ID=${config.sops.placeholder.r2-access-key}
+        LITESTREAM_SECRET_ACCESS_KEY=${config.sops.placeholder.r2-secret-key}
+        '';
+        owner = "litestream";
+        group = "litestream";
+        restartUnits = [ "litestream.service" ];
+      };
+    };
   };
 
   users.users.code = {
@@ -147,8 +184,8 @@
   };
   users.groups.code = { };
 
-  # temporarily allow nodejs 16 for code-server
+  # temporarily allow insecure packages
   nixpkgs.config.permittedInsecurePackages = [
-    "nodejs-16.20.2"
+    "litestream-0.3.13" # latest version as of 2024-12-27
   ];
 }
