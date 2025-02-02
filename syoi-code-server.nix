@@ -1,14 +1,21 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 
 {
   imports = [
     ./modules/syoi-code-server.nix
+    ./backup.nix
   ];
 
   services.syoi-code-server = {
     enable = true;
     instances = {
-      stommydx = { createUser = false; };
+      stommydx = {
+        createUser = false;
+      };
       jackylkk2003 = { };
       longhuen = { };
       azidoazideazide = { };
@@ -116,9 +123,11 @@
       ];
     };
   };
-  # manually run: sudo chmod g+w /var/lib/forgejo/data/forgejo.db && sudo chmod g+w /var/lib/forgejo/data
-  # TODO: properly setup permission in nix config
-  users.users.litestream.extraGroups = [ config.services.forgejo.group ];
+
+  systemd.services.litestream.serviceConfig = {
+    User = lib.mkForce config.services.forgejo.user;
+    Group = lib.mkForce config.services.forgejo.group;
+  };
 
   sops = {
     age = {
@@ -163,12 +172,12 @@
     templates = {
       litestream = {
         content = ''
-        LITESTREAM_S3_ENDPOINT=${config.sops.placeholder.r2-endpoint}
-        LITESTREAM_ACCESS_KEY_ID=${config.sops.placeholder.r2-access-key}
-        LITESTREAM_SECRET_ACCESS_KEY=${config.sops.placeholder.r2-secret-key}
+          LITESTREAM_S3_ENDPOINT=${config.sops.placeholder.r2-endpoint}
+          LITESTREAM_ACCESS_KEY_ID=${config.sops.placeholder.r2-access-key}
+          LITESTREAM_SECRET_ACCESS_KEY=${config.sops.placeholder.r2-secret-key}
         '';
-        owner = "litestream";
-        group = "litestream";
+        owner = "forgejo";
+        group = "forgejo";
         restartUnits = [ "litestream.service" ];
       };
     };

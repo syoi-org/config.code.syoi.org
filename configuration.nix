@@ -1,4 +1,7 @@
-{ config, pkgs, lib, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
 
@@ -11,7 +14,10 @@
   fileSystems = {
     "/".options = [ "compress=zstd" ];
     "/home".options = [ "compress=zstd" ];
-    "/nix".options = [ "compress=zstd" "noatime" ];
+    "/nix".options = [
+      "compress=zstd"
+      "noatime"
+    ];
   };
 
   # Use the systemd-boot EFI boot loader.
@@ -28,7 +34,10 @@
   # Define a admin user account.
   users.users.stommydx = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+    ];
     packages = with pkgs; [ nixpkgs-fmt ];
     shell = pkgs.zsh;
   };
@@ -53,10 +62,12 @@
     neofetch
     netcat
     p7zip
-    (python3.withPackages (pythonPkgs: with pythonPkgs; [
-      ipython
-      pandas
-    ]))
+    (python3.withPackages (
+      pythonPkgs: with pythonPkgs; [
+        ipython
+        pandas
+      ]
+    ))
     rclone
     rustc
     sops
@@ -69,7 +80,27 @@
     zip
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix = {
+    # Nix options for reducing storage spaces
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
+    settings = {
+      # This may cause random build failures but solvable upon retry. See https://github.com/NixOS/nix/issues/7273
+      auto-optimise-store = true;
+      # Enable flakes by default
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+      # allow remote builds for admins
+      trusted-users = [
+        "@wheel"
+      ];
+    };
+  };
 
   networking.domain = "syoi.org";
   networking.firewall.enable = false;
