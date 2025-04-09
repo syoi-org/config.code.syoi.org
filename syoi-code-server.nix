@@ -34,8 +34,12 @@
     enable = true;
     user = "root";
     group = "code";
+    # This should be unix//srv/code/caddy.sock|0220 instead, and the user 
+    # that runs cloudflared should have `code` group. It is changed to tcp 
+    # socket temp to allow connections before figuring out how to add group
+    # to dynamic users and access files in cloudflared service
     globalConfig = ''
-      default_bind unix//srv/code/caddy.sock|0220
+      default_bind 127.0.0.1:80
     '';
     virtualHosts = {
       "http://leaderboard.syoi.org" = {
@@ -56,13 +60,11 @@
 
   services.cloudflared = {
     enable = true;
-    user = "code";
-    group = "code";
     tunnels = {
       code-server = {
         ingress = {
-          "code.syoi.org" = "unix:/srv/code/caddy.sock";
-          "git.syoi.org" = "unix:/srv/code/caddy.sock";
+          "code.syoi.org" = "http://127.0.0.1:80";
+          "git.syoi.org" = "http://127.0.0.1:80";
           "ssh.syoi.org" = "ssh://localhost:22";
           "leaderboard.syoi.org" = "unix:/srv/code/caddy.sock";
           # "tft24.syoi.org" = "unix:/srv/code/caddy.sock";
